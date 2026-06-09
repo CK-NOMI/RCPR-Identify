@@ -125,7 +125,8 @@ run_worker_first = ["/api/*"]
 后端地址在 `src/worker.js` 顶部配置：
 
 ```javascript
-const BACKEND_ORIGIN = 'http://120.46.136.60.sslip.io:8765';
+const BACKEND_HOST = '120.46.136.60.sslip.io';
+const BACKEND_PORT = 8765;
 ```
 
 如果后端以后绑定了 HTTPS 域名，例如 `https://api.example.com`，只需要把这里改成：
@@ -138,7 +139,7 @@ const BACKEND_ORIGIN = 'https://api.example.com';
 
 ## 注意事项
 
-- 华为云安全组需要放行后端服务端口，例如 `8080`。
+- 华为云安全组需要放行后端服务端口，例如 `8765`。
 - 华为云服务器上需要启动模型后端，并提供 `/api/cosod`。
 - Cloudflare Worker 只负责转发请求，不运行 Python 模型。
 - 不要把模型权重提交到 GitHub，例如 `.pth`、`.pt`、`.ckpt`、`.onnx`。

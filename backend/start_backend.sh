@@ -10,4 +10,4 @@ fi
 
 source venv/bin/activate
 export PYTHONUNBUFFERED=1
-python cosod_backend.py --host 0.0.0.0 --port "${PORT:-8080}"
+python cosod_backend.py --host 0.0.0.0 --port "${PORT:-8765}"

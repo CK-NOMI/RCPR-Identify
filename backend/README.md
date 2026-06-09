@@ -64,7 +64,7 @@ bash start_backend.sh
 启动成功后，本机测试：
 
 ```bash
-curl http://127.0.0.1:8080/api/health
+curl http://127.0.0.1:8765/api/health
 ```
 
 公网测试：
@@ -73,7 +73,7 @@ curl http://127.0.0.1:8080/api/health
 curl http://120.46.136.60.sslip.io:8765/api/health
 ```
 
-华为云安全组需要放行 TCP `8080` 端口。
+华为云安全组需要放行 TCP `8765` 端口。
 
 ## 5. 与前端的关系
 

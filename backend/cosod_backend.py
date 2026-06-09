@@ -280,7 +280,7 @@ class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
 def main():
     parser = argparse.ArgumentParser(description='SCoSPARC CoSOD web backend')
     parser.add_argument('--host', default='127.0.0.1', type=str)
-    parser.add_argument('--port', default=8080, type=int)
+    parser.add_argument('--port', default=8765, type=int)
     args = parser.parse_args()
 
     WEB_RUNS_DIR.mkdir(parents=True, exist_ok=True)

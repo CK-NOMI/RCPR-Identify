@@ -30,6 +30,7 @@ import torchvision.models as models
 #from models.vgg import VGG_Backbone
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def save_visualizations(num_images,masks_m,attn_maps,pseudo_masks,pts,count1):
     for i in range(num_images):
@@ -286,7 +287,7 @@ class SmoothedValue(object):
         """
         if not is_dist_avail_and_initialized():
             return
-        t = torch.tensor([self.count, self.total], dtype=torch.float64, device='cuda')
+        t = torch.tensor([self.count, self.total], dtype=torch.float64, device=DEVICE)
         dist.barrier()
         dist.all_reduce(t)
         t = t.tolist()
@@ -899,8 +900,9 @@ def normalize_im(s_pred):
     return s_pred
 
 def eval_pr(y_pred, y, num):
-    prec, recall = torch.zeros(num).cuda(), torch.zeros(num).cuda()
-    thlist = torch.linspace(0, 1 - 1e-10, num).cuda()
+    device = y_pred.device if torch.is_tensor(y_pred) else DEVICE
+    prec, recall = torch.zeros(num, device=device), torch.zeros(num, device=device)
+    thlist = torch.linspace(0, 1 - 1e-10, num, device=device)
     for i in range(num):
         y_temp = (y_pred >= thlist[i]).float()
         tp = (y_temp * y).sum()
@@ -1213,7 +1215,7 @@ def find_closest_box(init_seg):
     return compute_bounding_box(init_seg)   
     
 def self_attention_module2(x,patch_size2,model_dino):
-    device = torch.device("cuda")
+    device = DEVICE
     for i in range(len(x)):
         img = x[i]
         img_w,img_h = img.shape[1],img.shape[2]
@@ -1224,7 +1226,7 @@ def self_attention_module2(x,patch_size2,model_dino):
 
         class_tok,patch_toks = model_dino.forward(img.to(device))
         
-        self_att_map = model_dino.get_last_selfattention(img.cuda())
+        self_att_map = model_dino.get_last_selfattention(img.to(device))
         nh = self_att_map.shape[1]
         self_att_map = self_att_map[0, :, 0, 1:].reshape(nh, -1)
         self_att_map = self_att_map.reshape(nh, 28, 28)
@@ -1249,18 +1251,18 @@ def dino_desc():
     for p in model1.parameters():
         p.requires_grad = False
     model1.eval()
-    device = torch.device("cuda")
+    device = DEVICE
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     model1.to(device)
-    state_dict = torch.load('./models/dino_vitbase8_pretrain.pth') 
+    state_dict = torch.load('./models/dino_vitbase8_pretrain.pth', map_location=device) 
     model1.load_state_dict(state_dict, strict=True)
     return model1
     
 def get_saliency(fg_wts, attn_maps):
     patch_feats = attn_maps.clone()
     for i in range(len(patch_feats)):
-        x1 = patch_feats[i].reshape((1,28*28)).cuda()
-        y1_fg = fg_wts[i].cuda()
+        x1 = patch_feats[i].reshape((1,28*28)).to(DEVICE)
+        y1_fg = fg_wts[i].to(DEVICE)
         comb = x1*y1_fg
         if i == 0:
             fg_sal = torch.mean(comb) #/torch.numel(x1[x1>0.15])
@@ -1432,7 +1434,7 @@ def apply_crf(preds_fin,paths,mode,dataset,imp_type):
         else:
             maps = np.concatenate((maps,map1))
                 
-    preds_fin = torch.from_numpy(maps).cuda()
+    preds_fin = torch.from_numpy(maps).to(preds_fin.device if torch.is_tensor(preds_fin) else DEVICE)
     
     return preds_fin
     

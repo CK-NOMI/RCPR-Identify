@@ -24,7 +24,7 @@ from rcpr import RCPRConsensusEstimator
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-device = torch.device("cuda")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     
 class Encoder_Attentioner(nn.Module):  
@@ -81,7 +81,7 @@ class SCoSPARC(nn.Module):
         self.device = device
         self.patch_size2 = 8
         self.num_patches2 = int(224/self.patch_size2)
-        self.encoder_attn = Encoder_Attentioner(768).cuda()
+        self.encoder_attn = Encoder_Attentioner(768).to(self.device)
         # Baseline (Fixed) vs Ours (ACRE-only) switch for Stage-2 prototype.
         self.stage2_use_acre = False
         # Unified Stage-2 similarity threshold in sim01 space.
@@ -111,7 +111,7 @@ class SCoSPARC(nn.Module):
         self._rpf_diag_v35_hit_max = 0
         self._rpf_diag_v35_gate_hits = 0
         # ACRE-only consensus estimator (TopK/RPF/etc. are intentionally not used here).
-        self.rcpr = RCPRConsensusEstimator(iters=2, beta=0.6, gamma=2.0).cuda()
+        self.rcpr = RCPRConsensusEstimator(iters=2, beta=0.6, gamma=2.0).to(self.device)
   
     def forward(self,x,paths,mode,idx,epoch,cut_off_epoch,dataset):
         
@@ -258,7 +258,7 @@ class SCoSPARC(nn.Module):
                 for j in range(1, len(np.unique(blobs_labels))):
                     blobs_mask = np.zeros_like(blobs_labels)
                     blobs_mask[blobs_labels == j] = 1
-                    list_boxes = find_closest_box(torch.from_numpy(blobs_mask).cuda())
+                    list_boxes = find_closest_box(torch.from_numpy(blobs_mask).to(pat_tok.device))
                     list1.append(list_boxes)
 
                 scores_list = []
@@ -266,7 +266,7 @@ class SCoSPARC(nn.Module):
                     blobs_mask = np.zeros_like(blobs_labels)
                     blobs_mask[blobs_labels == k+1] = 1
                     blobs_mask = cv2.resize(np.uint8(blobs_mask), (28, 28), interpolation=cv2.INTER_NEAREST)
-                    blobs_mask = torch.from_numpy(blobs_mask).cuda()
+                    blobs_mask = torch.from_numpy(blobs_mask).to(pat_tok.device)
                     masked_embs = blobs_mask.unsqueeze(2) * patch_toks2[i]
                     masked_embs = torch.reshape(masked_embs, (28 * 28, 768))
                     if baseline_legacy:
@@ -467,9 +467,9 @@ class SCoSPARC(nn.Module):
                     diag_all_cross_boundary_total += int(per_img_cross_boundary)
 
                 if i == 0:
-                    preds_fin_round2 = torch.from_numpy(blobs_mask_comb).cuda().unsqueeze(0)
+                    preds_fin_round2 = torch.from_numpy(blobs_mask_comb).to(patch_toks2[i].device).unsqueeze(0)
                 else:
-                    preds_fin_round2 = torch.cat((preds_fin_round2, torch.from_numpy(blobs_mask_comb).cuda().unsqueeze(0)))
+                    preds_fin_round2 = torch.cat((preds_fin_round2, torch.from_numpy(blobs_mask_comb).to(patch_toks2[i].device).unsqueeze(0)))
 
             if use_rpf_round2 and (not self._printed_rpf_diag_once):
                 print(f"[RPF_DIAG] regions0={diag_num_regions0} countk0={diag_num_countk0} fallback_rows={diag_num_fallback_rows} same_as_M1={diag_same_as_m1} total_imgs={len(preds_fin)}")

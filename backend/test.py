@@ -72,12 +72,12 @@ parser.add_argument('--tmp', default='./sup_sam2', help='Temporary folder')
 
 def main(args):
     
-    device = torch.device("cuda")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SCoSPARC()
     model = model.to(device)
 
     modelname = './checkpoints/'+ args.checkpoint_name #E.g. of model_checkpoint:'model.pt'
-    model1 = torch.load(modelname)
+    model1 = torch.load(modelname, map_location=device)
     print('loaded', modelname)
 
     model.to(device)

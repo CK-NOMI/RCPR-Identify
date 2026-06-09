@@ -34,3 +34,10 @@
 - 诊断过程：确认后端服务入口为 `cosod_backend.py`，运行环境为 `D:\Anaconda\Anaconda\envs\scosparc\python.exe`，访问地址为 `http://127.0.0.1:8765/code.html`。
 - 修复方案：新增 `start_cosod_web.ps1` / `start_cosod_web.bat`，用于检查健康接口、启动后端并打开页面；新增 `stop_cosod_web.ps1` / `stop_cosod_web.bat`，用于停止后端服务。
 - 验证结果：执行 `powershell -NoProfile -ExecutionPolicy Bypass -File .\start_cosod_web.ps1` 成功，输出 `CoSOD web app is ready: http://127.0.0.1:8765/code.html`；未触发模型推理。
+
+## 20:08:30 上传 GitHub 仓库并排除训练/预测数据
+
+- 问题现象：需要将 `C:\COSOD\SCoSPARC-main课设版` 上传到 `CK-NOMI/RCPR-Identify`，但本地项目包含 `datasets/`、`predictions/` 等大目录；第一次全量提交约 6.48GB、152651 个文件，普通 Git 推送阶段因包体过大返回 HTTP 500。
+- 诊断过程：扫描项目文件后确认最大单文件为 `models/dino_vitbase8_pretrain.pth`，大小约 343MB，超过 GitHub 普通文件限制，需使用 Git LFS；当前实际推理使用的业务 checkpoint 为 `checkpoints/baseline运行出的checkpoints/model_combo_base8-136_0.7291838924090067.pt`，约 7MB。根据用户补充，`datasets/` 和 `predictions/` 不需要上传。
+- 修复方案：更新 `.gitignore` 排除 `datasets/`、`predictions/`、Web 临时输出和除当前 checkpoint 外的其它 `.pt/.pth` 权重；更新 `.gitattributes` 让 `models/dino_vitbase8_pretrain.pth` 走 Git LFS；更新 `README.md` 说明项目用途、启动方式、未上传数据目录和当前保留权重。使用临时克隆目录 `C:\COSOD\RCPR-Identify-upload` 重新暂存、提交并推送。
+- 验证结果：推送成功，远端 `main` 从 `196c323bc` 更新到 `d4e107c4a0893bc5a758b5791bd6ad1e1ce19a26`；上传前检查确认暂存区没有 `datasets/` 和 `predictions/`；权重方面保留当前使用的 `model_combo_base8-136_0.7291838924090067.pt`，以及由 LFS 管理的 `models/dino_vitbase8_pretrain.pth`。

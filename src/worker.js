@@ -100,7 +100,7 @@ async function socketHttpRequest({ method, path, headers = {}, body }) {
   if (requestBody.byteLength > 0) {
     await writer.write(requestBody);
   }
-  await writer.close();
+  writer.releaseLock();
 
   const reader = socket.readable.getReader();
   const chunks = [];

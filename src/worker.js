@@ -83,7 +83,7 @@ function parseHttpResponse(bytes) {
 }
 
 async function socketHttpRequest({ method, path, headers = {}, body }) {
-  const socket = connect({ hostname: BACKEND_HOST, port: BACKEND_PORT });
+  const socket = connect({ hostname: BACKEND_HOST, port: BACKEND_PORT }, { allowHalfOpen: true });
   const writer = socket.writable.getWriter();
   const requestBody = body || new Uint8Array();
   const headerLines = [
@@ -100,7 +100,7 @@ async function socketHttpRequest({ method, path, headers = {}, body }) {
   if (requestBody.byteLength > 0) {
     await writer.write(requestBody);
   }
-  writer.releaseLock();
+  await writer.close();
 
   const reader = socket.readable.getReader();
   const chunks = [];

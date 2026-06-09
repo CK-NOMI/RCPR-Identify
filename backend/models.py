@@ -12,7 +12,6 @@ import time
 import argparse
 from tqdm import tqdm
 import glob
-import pydensecrf.densecrf as dcrf
 import scipy.io as sio
 from skimage import measure
 from sklearn.feature_extraction import image

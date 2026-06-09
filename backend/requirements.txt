@@ -1,4 +1,4 @@
-# 华为云后端推理环境依赖。建议使用 Python 3.9 或 3.10。
+# 华为云后端推理环境依赖。建议使用 Python 3.10 或系统默认 Python 3.12。
 numpy
 Pillow
 opencv-python-headless
@@ -13,4 +13,3 @@ timm
 Cython
 torch
 torchvision
-pydensecrf @ git+https://github.com/lucasb-eyer/pydensecrf.git

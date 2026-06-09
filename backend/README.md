@@ -16,20 +16,22 @@ cd RCPR-Identify/backend
 
 ## 2. 创建 Python 虚拟环境
 
-建议服务器使用 Python 3.9 或 3.10。
+建议服务器使用 Python 3.10 或系统默认 Python 3.12。
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
 ```
 
-如果安装 `pydensecrf` 失败，先安装系统编译工具：
+如果腾讯云镜像仍然较慢，可以换华为云 PyPI 镜像：
 
 ```bash
-apt update && apt install -y build-essential python3-dev git
+pip install -r requirements.txt -i https://repo.huaweicloud.com/repository/pypi/simple --trusted-host repo.huaweicloud.com
 ```
+
+`pydensecrf` 不是必装项。当前后端会在未安装 `pydensecrf` 时自动跳过 CRF 精修，先保证模型推理服务可部署、可调用。
 
 ## 3. 放置模型权重
 

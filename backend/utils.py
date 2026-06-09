@@ -14,9 +14,16 @@ from PIL import ImageFilter, ImageOps
 import cv2
 import vision_transformer as vits
 import torch.nn.functional as F
-import pydensecrf.densecrf as dcrf
-from pydensecrf.utils import unary_from_softmax
-from pydensecrf.utils import unary_from_labels
+try:
+    import pydensecrf.densecrf as dcrf
+    from pydensecrf.utils import unary_from_softmax
+    from pydensecrf.utils import unary_from_labels
+    HAS_DENSE_CRF = True
+except ImportError:
+    dcrf = None
+    unary_from_softmax = None
+    unary_from_labels = None
+    HAS_DENSE_CRF = False
 from scipy.linalg import eigh
 import timm
 import torchvision.models as models
@@ -1313,6 +1320,8 @@ def get_embeddings_mask(fg_wts,patch_toks_group):
     return fg_embeds,bg_embeds
 
 def dense_crf(img, init_seg, sxy_gaussian,compat_gaussian,sxy_bilateral,srgb_bilateral,compat_bilateral):
+    if not HAS_DENSE_CRF:
+        return init_seg
     c = init_seg.shape[0]
     h = init_seg.shape[1]
     w = init_seg.shape[2]
@@ -1336,6 +1345,8 @@ def dense_crf(img, init_seg, sxy_gaussian,compat_gaussian,sxy_bilateral,srgb_bil
     return Q
     
 def dense_crf2(img, init_seg,gt_conf,sxy_gaussian,compat_gaussian,sxy_bilateral,srgb_bilateral,compat_bilateral):
+    if not HAS_DENSE_CRF:
+        return init_seg
     c = init_seg.shape[0]
     h = init_seg.shape[1]
     w = init_seg.shape[2]
@@ -1363,6 +1374,9 @@ def dense_crf2(img, init_seg,gt_conf,sxy_gaussian,compat_gaussian,sxy_bilateral,
 
 
 def apply_crf(preds_fin,paths,mode,dataset,imp_type):
+    if not HAS_DENSE_CRF:
+        print('[CRF] pydensecrf is not installed; skip CRF refinement.', flush=True)
+        return preds_fin
     #if mode == 'test':
     for i in range(len(preds_fin)):
         if mode == 'train':

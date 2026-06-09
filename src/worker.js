@@ -105,13 +105,19 @@ async function socketHttpRequest({ method, path, headers = {}, body }) {
   const reader = socket.readable.getReader();
   const chunks = [];
   let totalLength = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      chunks.push(value);
+      totalLength += value.length;
     }
-    chunks.push(value);
-    totalLength += value.length;
+  } catch (error) {
+    if (totalLength === 0) {
+      throw error;
+    }
   }
 
   return parseHttpResponse(mergeChunks(chunks, totalLength));

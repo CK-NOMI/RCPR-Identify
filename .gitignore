@@ -1,15 +1,32 @@
-__pycache__/
-*.pyc
-web_backend.pid
+# 本仓库用于 Cloudflare Pages 前端部署，模型、数据和输出不要提交。
 datasets/
+dataset/
+data/
+weights/
+checkpoints/
+outputs/
+results/
+uploads/
 predictions/
 web_runs/
 web_outputs/
 web_logs/
 aqua20_logs/
+exp_logs/
 
-# 只保留当前推理实际使用的权重。
-*.pt
 *.pth
-!models/dino_vitbase8_pretrain.pth
-!checkpoints/baseline运行出的checkpoints/model_combo_base8-136_0.7291838924090067.pt
+*.pt
+*.ckpt
+*.onnx
+*.mindir
+*.pkl
+*.zip
+*.rar
+*.7z
+
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

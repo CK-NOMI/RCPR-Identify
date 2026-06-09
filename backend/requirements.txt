@@ -1,0 +1,16 @@
+# 华为云后端推理环境依赖。建议使用 Python 3.9 或 3.10。
+numpy
+Pillow
+opencv-python-headless
+scipy
+scikit-learn
+scikit-image
+matplotlib
+seaborn
+pandas
+tqdm
+timm
+Cython
+torch
+torchvision
+pydensecrf @ git+https://github.com/lucasb-eyer/pydensecrf.git

@@ -256,8 +256,8 @@
   </footer>
 
   <script>
-    const API_BASE_URL = 'https://你的后端地址';
-    const COSOD_API = `${API_BASE_URL.replace(/\/$/, '')}/api/cosod`;
+    const API_BASE_URL = '';
+    const COSOD_API = API_BASE_URL ? `${API_BASE_URL.replace(/\/$/, '')}/api/cosod` : '/api/cosod';
     const MAX_FILE_SIZE = 20 * 1024 * 1024;
     const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png']);
     const selectedFiles = [];

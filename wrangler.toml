@@ -1,0 +1,9 @@
+name = "rcpr-identify"
+main = "src/worker.js"
+compatibility_date = "2026-06-09"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]

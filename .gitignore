@@ -26,6 +26,7 @@ exp_logs/
 
 node_modules/
 dist/
+.wrangler/
 __pycache__/
 *.pyc
 .DS_Store

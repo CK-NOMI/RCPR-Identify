@@ -1,0 +1,16 @@
+pip install matplotlib==3.3.4 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install numpy==1.19.5 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install opencv_python==4.5.4.60 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install pandas==1.1.5 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install Pillow==8.4.0 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+conda install -c conda-forge pydensecrf=1.0rc2
+pip install scikit-image==0.17.2 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install scikit_learn==0.24.2 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install scipy==1.5.4 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install seaborn==0.11.2 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+# skimage==0.0 这个包几乎没人用，一般只需要上面的 scikit-image 就够了，可以先不装
+# pip install skimage==0.0 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install timm==0.5.4 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install torch==1.10.1 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install torchvision==0.11.2 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+pip install tqdm==4.64.1 -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com

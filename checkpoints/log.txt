@@ -1,0 +1,20 @@
+2025-12-05 00:33:13,206 INFO Model details:
+2025-12-05 00:33:13,206 INFO SCoSPARC(
+  (encoder_attn): Encoder_Attentioner(
+    (conv): Conv2d(768, 768, kernel_size=(1, 1), stride=(1, 1))
+    (query_transform): Conv2d(768, 768, kernel_size=(1, 1), stride=(1, 1))
+    (key_transform): Conv2d(768, 768, kernel_size=(1, 1), stride=(1, 1))
+    (sig): Sigmoid()
+  )
+)
+2025-12-05 00:33:13,207 INFO Optimizer details:
+2025-12-05 00:33:13,207 INFO Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: [0.9, 0.99]
+    eps: 1e-08
+    lr: 0.0001
+    weight_decay: 0.0001
+)
+2025-12-05 00:33:13,208 INFO Other hyperparameters:
+2025-12-05 00:33:13,208 INFO Namespace(bs=1, data_split=2, epochs=150, lab_gt_path='./datasets/combo/groundtruth/', lab_im_path='./datasets/combo/image/', loss='IoU_loss', lr=0.0001, resume=None, size=224, start_epoch=0, tmp='./checkpoints', trainset='CoCo', val_gt_path='./datasets/CoCA/groundtruth', val_im_path='./datasets/CoCA/image')

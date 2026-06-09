@@ -1,0 +1,1 @@
+models/dino_vitbase8_pretrain.pth filter=lfs diff=lfs merge=lfs -text

@@ -1,4 +1,4 @@
-const BACKEND_ORIGIN = 'http://120.46.136.60:8080';
+const BACKEND_ORIGIN = 'http://120.46.136.60.sslip.io:8080';
 
 function corsHeaders(request) {
   const origin = request.headers.get('Origin') || '*';

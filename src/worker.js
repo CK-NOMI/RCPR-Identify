@@ -1,4 +1,4 @@
-const BACKEND_ORIGIN = 'http://120.46.136.60:8765';
+const BACKEND_ORIGIN = 'http://120.46.136.60:8080';
 
 function corsHeaders(request) {
   const origin = request.headers.get('Origin') || '*';
@@ -65,7 +65,7 @@ async function proxyCosod(request) {
     return jsonResponse(
       {
         success: false,
-        message: '无法连接华为云后端，请确认服务器服务已启动并放行 8765 端口。',
+        message: '无法连接华为云后端，请确认服务器服务已启动并放行 8080 端口。',
         detail: error instanceof Error ? error.message : String(error)
       },
       502,

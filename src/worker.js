@@ -1,4 +1,4 @@
-const BACKEND_ORIGIN = 'http://120.46.136.60.sslip.io:8080';
+const BACKEND_ORIGIN = 'http://120.46.136.60';
 
 function corsHeaders(request) {
   const origin = request.headers.get('Origin') || '*';
@@ -70,7 +70,7 @@ async function proxyCosod(request) {
       return jsonResponse(
         {
           success: false,
-          message: '后端代理返回的不是 JSON，请确认华为云后端运行在 8080 端口。',
+          message: '后端代理返回的不是 JSON，请确认华为云后端运行在 80 端口。',
           status: upstreamResponse.status,
           detail: text.slice(0, 300)
         },
@@ -88,7 +88,7 @@ async function proxyCosod(request) {
     return jsonResponse(
       {
         success: false,
-        message: '无法连接华为云后端，请确认服务器服务已启动并放行 8080 端口。',
+        message: '无法连接华为云后端，请确认服务器服务已启动并放行 80 端口。',
         detail: error instanceof Error ? error.message : String(error)
       },
       502,

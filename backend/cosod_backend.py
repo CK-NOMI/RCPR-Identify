@@ -3,6 +3,7 @@ import cgi
 import json
 import mimetypes
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -31,6 +32,7 @@ CHECKPOINT_NAME = os.environ.get(
 MAX_FILE_SIZE = 20 * 1024 * 1024
 INFER_LOCK = threading.Lock()
 JOB_LOCK = threading.Lock()
+CLIENT_JOB_RE = re.compile(r'^[A-Za-z0-9_-]{8,80}$')
 
 
 def _job_path(job_id):
@@ -49,6 +51,13 @@ def _read_job(job_id):
     if not path.is_file():
         return None
     return json.loads(path.read_text(encoding='utf-8'))
+
+
+def _normalize_client_job_id(value):
+    value = (value or '').strip()
+    if not value or not CLIENT_JOB_RE.match(value):
+        return ''
+    return value
 
 
 def _run_job(job_id, saved_images, image_root, gt_root, model_folder):
@@ -316,7 +325,17 @@ class CosodHandler(BaseHTTPRequestHandler):
             if len(file_items) < 2:
                 raise ValueError('请至少上传 2 张图片')
 
-            job_id = time.strftime('%Y%m%d_%H%M%S_') + uuid.uuid4().hex[:8]
+            client_job_id = _normalize_client_job_id(form.getfirst('clientJobId', ''))
+            job_id = client_job_id or (time.strftime('%Y%m%d_%H%M%S_') + uuid.uuid4().hex[:8])
+            existing_job = _read_job(job_id)
+            if existing_job is not None:
+                existing_job = {
+                    **existing_job,
+                    'statusUrl': f'/api/cosod/status?jobId={job_id}',
+                }
+                self._send_json(200 if existing_job.get('status') == 'completed' else 202, existing_job)
+                return
+
             model_folder = f'web_cosod_{job_id}'
             job_dir = WEB_RUNS_DIR / job_id
             image_root = job_dir / 'dataset' / 'image'

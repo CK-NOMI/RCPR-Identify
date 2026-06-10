@@ -3,6 +3,7 @@ import { connect } from 'cloudflare:sockets';
 const BACKEND_HOST = '120.46.136.60';
 const BACKEND_PORT = 80;
 const BACKEND_ORIGIN = `tcp://${BACKEND_HOST}:${BACKEND_PORT}`;
+const MAX_UPLOAD_BODY_SIZE = 30 * 1024 * 1024;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -159,6 +160,15 @@ async function proxyCosod(request) {
   }
 
   try {
+    const contentLength = Number(request.headers.get('Content-Length') || '0');
+    if (contentLength > MAX_UPLOAD_BODY_SIZE) {
+      return jsonResponse(
+        { success: false, message: '上传图片总体积过大，请压缩图片或减少单次上传数量后重试。' },
+        413,
+        corsHeaders(request)
+      );
+    }
+
     const upstreamResponse = await socketRequest({
       method: 'POST',
       path: '/api/cosod',

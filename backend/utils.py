@@ -1540,7 +1540,7 @@ def do_ncut(feats):
         pseudo_mask = np.zeros(dims)
         pseudo_mask[cc[0],cc[1]] = 1
         pseudo_mask = torch.from_numpy(pseudo_mask)
-        pseudo_mask = pseudo_mask.to('cuda')
+        pseudo_mask = pseudo_mask.to(DEVICE)
         if i == 0:
             pseudo_masks = pseudo_mask.unsqueeze(0) #np.expand_dims(bipartition1, axis=0)  #pseudo_mask
         else:

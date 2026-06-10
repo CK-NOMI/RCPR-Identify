@@ -230,8 +230,12 @@ def main(args):
                     orig = cv2.imread('./datasets/'+testset+'/image/'+subpath[:-4]+'.jpg')
                 
                 res = scaled_preds[inum].detach().cpu().numpy()
-                res = np.uint8(res*255)
-                res = cv2.resize(np.uint8(res),(ori_size[1],ori_size[0]))
+                res = np.squeeze(res)
+                if res.ndim == 3:
+                    res = res[0]
+                res = np.clip(res, 0.0, 1.0)
+                res = np.uint8(res * 255.0)
+                res = cv2.resize(res, (ori_size[1], ori_size[0]), interpolation=cv2.INTER_NEAREST)
                 cv2.imwrite(os.path.join(saved_root, subpath),res)
 
                 stage1_res = fg_interim[inum].detach().cpu().numpy()

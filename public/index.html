@@ -124,29 +124,29 @@
     </section>
 
     <section class="bg-surface-bright rounded-2xl shadow-sm border border-border p-6 mt-2">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
-        <div class="flex items-center gap-4 flex-1">
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 md:gap-8">
+        <div class="grid w-full grid-cols-[2rem_3rem_minmax(0,1fr)] items-center gap-3 md:flex md:w-auto md:flex-1 md:items-center md:gap-4">
           <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0">1</div>
           <div class="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
             <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><rect height="18" rx="2" ry="2" width="18" x="3" y="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
           </div>
-          <div><h3 class="font-medium text-content text-sm">上传图像</h3><p class="text-xs text-content-muted mt-0.5">上传至少 2 张包含<br />共同物体的图片</p></div>
+          <div class="min-w-0"><h3 class="font-medium text-content text-sm">上传图像</h3><p class="text-xs text-content-muted mt-0.5 leading-relaxed">上传至少 2 张包含<br />共同物体的图片</p></div>
         </div>
         <div class="hidden md:block text-border shrink-0"><svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div>
-        <div class="flex items-center gap-4 flex-1">
+        <div class="grid w-full grid-cols-[2rem_3rem_minmax(0,1fr)] items-center gap-3 md:flex md:w-auto md:flex-1 md:items-center md:gap-4">
           <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0">2</div>
           <div class="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
             <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><rect height="16" rx="2" width="16" x="4" y="4"></rect><rect height="6" rx="1" width="6" x="9" y="9"></rect><path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path><path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path><path d="M9 2v2"></path><path d="M9 20v2"></path></svg>
           </div>
-          <div><h3 class="font-medium text-content text-sm">模型推理</h3><p class="text-xs text-content-muted mt-0.5">算法模型自动分析并识别<br />共同显著的物体区域</p></div>
+          <div class="min-w-0"><h3 class="font-medium text-content text-sm">模型推理</h3><p class="text-xs text-content-muted mt-0.5 leading-relaxed">算法模型自动分析并识别<br />共同显著的物体区域</p></div>
         </div>
         <div class="hidden md:block text-border shrink-0"><svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div>
-        <div class="flex items-center gap-4 flex-1">
+        <div class="grid w-full grid-cols-[2rem_3rem_minmax(0,1fr)] items-center gap-3 md:flex md:w-auto md:flex-1 md:items-center md:gap-4">
           <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0">3</div>
           <div class="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
             <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
-          <div><h3 class="font-medium text-content text-sm">输出识别结果</h3><p class="text-xs text-content-muted mt-0.5">生成 Mask 与叠加效果，<br />支持结果可视化</p></div>
+          <div class="min-w-0"><h3 class="font-medium text-content text-sm">输出识别结果</h3><p class="text-xs text-content-muted mt-0.5 leading-relaxed">生成 Mask 与叠加效果，<br />支持结果可视化</p></div>
         </div>
       </div>
     </section>

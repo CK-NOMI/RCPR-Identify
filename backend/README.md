@@ -3,7 +3,7 @@
 本目录用于在华为云 ECS 上部署共显著物体识别模型后端。Cloudflare 前端会请求同域 `/api/cosod`，再由 Worker 代理到：
 
 ```text
-http://120.46.136.60/api/cosod
+http://120.46.136.60.sslip.io/api/cosod
 ```
 
 ## 1. 克隆仓库
@@ -70,7 +70,7 @@ curl http://127.0.0.1/api/health
 公网测试：
 
 ```bash
-curl http://120.46.136.60/api/health
+curl -H "Host: 120.46.136.60" http://120.46.136.60.sslip.io/api/health
 ```
 
 华为云安全组需要放行 TCP `80` 端口。
@@ -92,8 +92,8 @@ https://rcpr-identify.chenkang314.workers.dev/
 Cloudflare Worker 代理：
 
 ```text
-/api/cosod -> http://120.46.136.60/api/cosod
-/outputs/* -> http://120.46.136.60/outputs/*
+/api/cosod -> http://120.46.136.60.sslip.io/api/cosod
+/outputs/* -> http://120.46.136.60.sslip.io/outputs/*
 ```
 
 因此浏览器不会直接从 HTTPS 页面请求 HTTP 后端，避免 Mixed Content 拦截。

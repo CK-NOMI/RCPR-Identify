@@ -1,4 +1,5 @@
-const BACKEND_ORIGIN = 'http://120.46.136.60';
+const BACKEND_ORIGIN = 'http://120.46.136.60.sslip.io';
+const BACKEND_HOST_HEADER = '120.46.136.60';
 
 function corsHeaders(request) {
   const origin = request.headers.get('Origin') || '*';
@@ -36,6 +37,7 @@ function filteredRequestHeaders(request) {
   ]) {
     headers.delete(name);
   }
+  headers.set('Host', BACKEND_HOST_HEADER);
   return headers;
 }
 
@@ -101,7 +103,8 @@ async function proxyBackendAsset(request) {
   const url = new URL(request.url);
   try {
     const upstreamResponse = await fetch(`${BACKEND_ORIGIN}${url.pathname}${url.search}`, {
-      method: 'GET'
+      method: 'GET',
+      headers: { Host: BACKEND_HOST_HEADER }
     });
     const responseHeaders = new Headers(upstreamResponse.headers);
     responseHeaders.set('Cache-Control', 'public, max-age=3600');
@@ -135,7 +138,7 @@ export default {
     }
 
     if (url.pathname === '/api/health') {
-      return jsonResponse({ ok: true, backend: BACKEND_ORIGIN });
+      return jsonResponse({ ok: true, backend: BACKEND_ORIGIN, host: BACKEND_HOST_HEADER });
     }
 
     return env.ASSETS.fetch(request);

@@ -474,6 +474,51 @@
       `;
     }
 
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function readJsonResponse(response) {
+      const text = await response.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (err) {
+        throw new Error(`后端返回内容不是合法 JSON：${text.slice(0, 160)}`);
+      }
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `请求失败，HTTP ${response.status}`);
+      }
+      return data;
+    }
+
+    async function pollCosodJob(statusUrl, filesCount) {
+      const url = statusUrl || '';
+      if (!url) throw new Error('后端没有返回任务状态地址。');
+
+      for (let attempt = 0; attempt < 360; attempt += 1) {
+        await sleep(attempt === 0 ? 1200 : 5000);
+        const data = await readJsonResponse(await fetch(url, { method: 'GET' }));
+        const status = data.status || '';
+        const progress = status === 'queued' ? 60 : Math.min(95, 65 + attempt);
+
+        if (data.pending || status === 'queued' || status === 'running') {
+          showMessage(data.message || '模型正在后台识别，图片较多时需要更长时间，请保持页面打开。', 'info');
+          updateStats(filesCount, data.count || 0, progress);
+          continue;
+        }
+
+        if (data.success === false || status === 'failed') {
+          throw new Error(data.message || data.error || '后端识别失败。');
+        }
+
+        renderResults(data);
+        return;
+      }
+
+      throw new Error('识别任务仍在运行，请稍后刷新页面或减少单次上传图片数量后重试。');
+    }
+
     async function submitCosod() {
       const filesToUpload = getCurrentFiles();
       if (filesToUpload.length < 2) {
@@ -488,22 +533,17 @@
       setLoading(true);
 
       try {
-        const response = await fetch(COSOD_API, {
+        const data = await readJsonResponse(await fetch(COSOD_API, {
           method: 'POST',
           body: formData
-        });
-        const text = await response.text();
-        let data;
-        try {
-          data = text ? JSON.parse(text) : {};
-        } catch (err) {
-          throw new Error(`后端返回内容不是合法 JSON：${text.slice(0, 160)}`);
-        }
-        if (!response.ok) {
-          throw new Error(data.message || data.error || `请求失败，HTTP ${response.status}`);
-        }
+        }));
         if (data.success === false) {
           throw new Error(data.message || data.error || '后端识别失败。');
+        }
+        if (data.pending || data.status === 'queued' || data.status === 'running') {
+          showMessage(data.message || '任务已提交，正在后台识别。', 'info');
+          await pollCosodJob(data.statusUrl || `/api/cosod/status?jobId=${encodeURIComponent(data.jobId || '')}`, filesToUpload.length);
+          return;
         }
         renderResults(data);
       } catch (err) {

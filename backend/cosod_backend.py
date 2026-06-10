@@ -13,7 +13,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
 from pathlib import Path
 from socketserver import ThreadingMixIn
-from urllib.parse import quote, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import numpy as np
 from PIL import Image
@@ -23,12 +23,68 @@ ROOT = Path(__file__).resolve().parent
 WEB_RUNS_DIR = ROOT / 'web_runs'
 WEB_OUTPUTS_DIR = ROOT / 'web_outputs'
 LOG_DIR = ROOT / 'web_logs'
+JOB_DIR = ROOT / 'web_jobs'
 CHECKPOINT_NAME = os.environ.get(
     'COSOD_CHECKPOINT_NAME',
     r'baseline运行出的checkpoints/model_combo_base8-136_0.7291838924090067.pt',
 )
 MAX_FILE_SIZE = 20 * 1024 * 1024
 INFER_LOCK = threading.Lock()
+JOB_LOCK = threading.Lock()
+
+
+def _job_path(job_id):
+    return JOB_DIR / f'{job_id}.json'
+
+
+def _write_job(job_id, payload):
+    JOB_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {**payload, 'jobId': job_id, 'updatedAt': time.time()}
+    with JOB_LOCK:
+        _job_path(job_id).write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+
+
+def _read_job(job_id):
+    path = _job_path(job_id)
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def _run_job(job_id, saved_images, image_root, gt_root, model_folder):
+    try:
+        _write_job(job_id, {
+            'success': True,
+            'pending': True,
+            'status': 'running',
+            'message': '模型正在识别中，请稍候。',
+            'count': 0,
+            'total': len(saved_images),
+        })
+        with INFER_LOCK:
+            log_path = _run_inference(job_id, image_root, gt_root, model_folder)
+        results = _build_results(saved_images, job_id, model_folder)
+        _write_job(job_id, {
+            'success': True,
+            'pending': False,
+            'status': 'completed',
+            'message': '识别完成。',
+            'count': len(results),
+            'total': len(saved_images),
+            'logUrl': '',
+            'logPath': str(log_path),
+            'results': results,
+        })
+    except Exception as exc:
+        _write_job(job_id, {
+            'success': False,
+            'pending': False,
+            'status': 'failed',
+            'message': str(exc),
+            'error': str(exc),
+            'count': 0,
+            'total': len(saved_images),
+        })
 
 
 def _json_bytes(payload):
@@ -206,6 +262,18 @@ class CosodHandler(BaseHTTPRequestHandler):
         if path == '/api/health':
             self._send_json(200, {'ok': True})
             return
+        if path == '/api/cosod/status':
+            query = parse_qs(parsed.query)
+            job_id = query.get('jobId', [''])[0]
+            if not job_id:
+                self._send_json(400, {'success': False, 'message': '缺少 jobId。'})
+                return
+            payload = _read_job(job_id)
+            if payload is None:
+                self._send_json(404, {'success': False, 'message': '未找到该识别任务。', 'jobId': job_id})
+                return
+            self._send_json(200, payload)
+            return
         if path.startswith('/outputs/'):
             rel = path[len('/outputs/'):].lstrip('/').replace('/', os.sep)
             target = (WEB_OUTPUTS_DIR / rel).resolve()
@@ -257,17 +325,32 @@ class CosodHandler(BaseHTTPRequestHandler):
             public_original_dir = WEB_OUTPUTS_DIR / job_id / 'original'
 
             saved_images = _save_uploaded_images(file_items, image_dir, public_original_dir)
-            with INFER_LOCK:
-                log_path = _run_inference(job_id, image_root, gt_root, model_folder)
-            results = _build_results(saved_images, job_id, model_folder)
-
-            self._send_json(200, {
+            _write_job(job_id, {
                 'success': True,
+                'pending': True,
+                'status': 'queued',
+                'message': '任务已提交，正在等待模型识别。',
+                'count': 0,
+                'total': len(saved_images),
+                'results': [],
+            })
+            worker = threading.Thread(
+                target=_run_job,
+                args=(job_id, saved_images, image_root, gt_root, model_folder),
+                daemon=True,
+            )
+            worker.start()
+
+            self._send_json(202, {
+                'success': True,
+                'pending': True,
+                'status': 'queued',
                 'jobId': job_id,
-                'count': len(results),
-                'logUrl': '',
-                'logPath': str(log_path),
-                'results': results,
+                'count': 0,
+                'total': len(saved_images),
+                'statusUrl': f'/api/cosod/status?jobId={job_id}',
+                'message': '任务已提交，正在后台识别。',
+                'results': [],
             })
         except Exception as exc:
             self._send_json(500, {'error': str(exc), 'message': str(exc)})

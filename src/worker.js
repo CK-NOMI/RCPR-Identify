@@ -190,6 +190,46 @@ async function proxyCosod(request) {
   }
 }
 
+async function proxyCosodStatus(request) {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders(request) });
+  }
+
+  if (request.method !== 'GET') {
+    return jsonResponse(
+      { success: false, message: '只支持 GET 请求。' },
+      405,
+      { Allow: 'GET, OPTIONS', ...corsHeaders(request) }
+    );
+  }
+
+  const url = new URL(request.url);
+  try {
+    const upstreamResponse = await socketRequest({
+      method: 'GET',
+      path: `/api/cosod/status${url.search}`
+    });
+    for (const [key, value] of Object.entries(corsHeaders(request))) {
+      upstreamResponse.headers.set(key, value);
+    }
+    return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: upstreamResponse.headers
+    });
+  } catch (error) {
+    return jsonResponse(
+      {
+        success: false,
+        message: '无法读取识别任务状态。',
+        detail: error instanceof Error ? error.message : String(error)
+      },
+      502,
+      corsHeaders(request)
+    );
+  }
+}
+
 async function proxyBackendAsset(request) {
   const url = new URL(request.url);
   try {
@@ -248,6 +288,10 @@ export default {
 
     if (url.pathname === '/api/cosod') {
       return proxyCosod(request);
+    }
+
+    if (url.pathname === '/api/cosod/status') {
+      return proxyCosodStatus(request);
     }
 
     if (url.pathname.startsWith('/outputs/')) {
